@@ -3,7 +3,7 @@
 import { DocumentClient } from '../../node_modules/aws-sdk/clients/dynamodb';
 import dynamo from '../dynamo/dynamo';
 import log from '../log';
-import REvent from '../models/event';
+import REvent, { status } from '../models/event';
 
 class EventRepo {
   constructor(
@@ -11,19 +11,26 @@ class EventRepo {
   ) {}
 
   public async getByUserName(username: string): Promise<REvent[]> {
+    log.debug(username);
     const params: DocumentClient.ScanInput = {
       TableName: 'reinburstments',
-      FilterExpression: 'username = :username',
+      FilterExpression: '#username = :username',
+      ProjectionExpression: '#date, #time, #description, #cost, eventType, gradingformat, workrelated, timeOff, #status, username, rid',
       ExpressionAttributeValues: {
         ':username': username,
 
       },
+      ExpressionAttributeNames: {
+        '#date': 'date',
+        '#time': 'time',
+        '#description': 'description',
+        '#cost': 'cost',
+        '#username': 'username',
+        '#status': 'status',
+      },
     };
-
+    log.debug(params);
     const results = await this.docClient.scan(params).promise();
-    log.debug(results);
-    console.log(results);
-    // console.log(results);
     log.debug(results);
     return results.Items as REvent[];
   }
@@ -61,10 +68,7 @@ class EventRepo {
     const params: DocumentClient.PutItemInput = {
       TableName: 'reinburstments',
       Item: { ...event },
-      ConditionExpression: 'rid = :rid',
-      ExpressionAttributeValues: {
-        ':rid': event.getID,
-      },
+
     };
 
     try {
@@ -98,13 +102,21 @@ class EventRepo {
 
   async queryByRid(rid: string): Promise<REvent | undefined> {
     const params: DocumentClient.GetItemInput = {
-      TableName: 'reinbursments',
+      TableName: 'reinburstments',
       Key: { rid },
-
+      ProjectionExpression: '#date, #time, #description, #cost, eventType, gradingformat, workrelated, timeOff, #status, #username, rid',
+      ExpressionAttributeNames: {
+        '#date': 'date',
+        '#time': 'time',
+        '#description': 'description',
+        '#cost': 'cost',
+        '#username': 'username',
+        '#status': 'status',
+      },
     };
     const result = await this.docClient.get(params).promise();
     console.log(result);
-    return result as REvent | undefined;
+    return result.Item as REvent | undefined;
   }
 
   async removeEvent(rid: string): Promise<boolean> {
@@ -131,6 +143,29 @@ class EventRepo {
       return results.Items as REvent[];
     }
     return [];
+  }
+
+  public async getByStatus(rStatus: status): Promise<REvent[]> {
+    const params: DocumentClient.ScanInput = {
+      TableName: 'reinburstments',
+      FilterExpression: '#status = :status',
+      ProjectionExpression: '#date, #time, #description, #cost, eventType, gradingformat, workrelated, timeOff, #status, #username, rid',
+      ExpressionAttributeValues: {
+        ':status': rStatus,
+
+      },
+      ExpressionAttributeNames: {
+        '#date': 'date',
+        '#time': 'time',
+        '#description': 'description',
+        '#cost': 'cost',
+        '#username': 'username',
+        '#status': 'status',
+      },
+    };
+    const results = await this.docClient.scan(params).promise();
+    log.debug(results);
+    return results.Items as REvent[];
   }
 }
 export default new EventRepo();

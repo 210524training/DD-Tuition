@@ -1,21 +1,36 @@
-import { table } from 'console';
-import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import UserContext from '../../context';
 import reimClient from '../../grubdash.client';
 import REvent from '../../models/event';
-import logger from 'log4js';
-const ListRein: React.FC<unknown> = (props) => {
+
+
+const PendingDHReimburstments: React.FC<unknown> = (props) => {
   const {user, role} = useContext(UserContext);
   const [tabledata, setTableData] = useState<REvent[]>();
    
-  
+  const handleApproval = async (event:REvent) => {
+    event.status = 'Pending Benefits Coordinator'; 
+    const data = await reimClient.put(`/api/v1/reimburstments/updateRequest`, {event});
+     
+  }
+  const handleReject = () => {
 
+  }
+  
+  // useEffect(() => {
+  //   (async function populateTable(): Promise<void> {
+  //     if(user) {
+  //       const data =  await getUserRequests(currentUser)
+  //       setTableData(data)
+  //     }
+  //   })();
+  // },[user])
     const getRein = async () => {
-          const data = await reimClient.post<REvent[]>(`/api/v1/reimburstments/pendingrequests` );
+        const data = await reimClient.post<REvent[]>(`/api/v1/reimburstments/pendingrequests` );
         setTableData(data.data);
     };
  const tableRows = tabledata?.map((item: REvent, index) => (
-        <tr key={index}>
+        <tr key={index} >
           <td>{item.getID}</td>
           <td>{item.eventType}</td>
           <td>{item.description}</td>
@@ -24,9 +39,12 @@ const ListRein: React.FC<unknown> = (props) => {
           {/* <td>{item.eventStartDate}</td>
           <td>{item.eventStartTime}</td> */}
           <td>{item.gradingformat}</td>
-          {/* <td>{item.comments}</td>
-          <td>{item.projectedAmount}</td> */}
+
+          <td><button className="btn btn-success" onClick={() => handleApproval(item)}>Approve</button></td>
+          <td><button onClick={handleReject}></button></td>
+
         </tr>
+        
       ));
     
 
@@ -51,4 +69,4 @@ const ListRein: React.FC<unknown> = (props) => {
 
   );
 };
-export default ListRein;
+export default PendingDHReimburstments;

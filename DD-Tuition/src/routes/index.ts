@@ -23,8 +23,8 @@ baseRouter.post('/', async (req, res) => {
   const user = await userService.login(account.username, account.password);
   if(user !== false) {
     req.session.isLoggedIn = true;
-    req.session.user = account;
-    res.json(account);
+    req.session.user = user as Employee;
+    res.json(user);
   }
 
   // return res.status(400).end();
@@ -46,5 +46,5 @@ export async function logout(req: express.Request, res: express.Response): Promi
 baseRouter.post('/logout', logout);
 
 baseRouter.use('/api/v1/employee', userRouter);
-
+baseRouter.use('/api/v1/reimburstments', reinburstmentRouter);
 export default baseRouter;

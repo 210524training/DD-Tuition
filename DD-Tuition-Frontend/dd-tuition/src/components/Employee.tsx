@@ -3,13 +3,14 @@ import UserContext from '../context';
 import Employee from '../models/employee';
 import ReimRequest from '../Reim';
 import ListRein from './ListRein/ListRein';
+import PendingDHReimburstments from './PendingDHReimburstments/PendDHApproval';
 
 
 const EmployPage: React.FC<unknown> = (props) => {
   
     const [username,setusername] = useState<string>();
     const [password, setPassword] = useState<string>();
-    const {user} = useContext(UserContext);
+    const {user, role} = useContext(UserContext);
     return (   
     <div className="container" id='empContainer'>
         <hr />
@@ -21,7 +22,7 @@ const EmployPage: React.FC<unknown> = (props) => {
             </div>
         </div>
         <hr />
-        <div className="row">
+        <div >
             <div className="col-md">
                 <ReimRequest />
             </div>
@@ -29,16 +30,25 @@ const EmployPage: React.FC<unknown> = (props) => {
             </div>
         </div>
         <hr />
-        <div className="row">
-            <div className="col-sm">
-            <ListRein/>
-            </div>
-            <div className="col-sm">
+        <div>
+            <div className="col-md">
+                <ListRein/>
             </div>
         </div>
+        <br/>
+    {role==='Department Head' &&    
+        <div>
+            <div className="col-md">
+                <PendingDHReimburstments/>
+            </div>
+            </div>
+            
+    }    
         <hr />
+        
         <div className="row">
             <div className="col-sm">
+                <p>I am the head</p>
             </div>
             <div className="col-sm">
             </div>
@@ -46,7 +56,6 @@ const EmployPage: React.FC<unknown> = (props) => {
 
             
     </div>
-    
   );
 };
 export default EmployPage;

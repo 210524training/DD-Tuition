@@ -20,7 +20,7 @@ function App() {
     <>
       <UserContext.Provider value={{ authenticated, setAuthenticated, user, setUser, role, setRole }}>
         <Router>
-          <Navbar />
+          <Navbar user={user}/>
           <div> user is {`${authenticated ? "" : "not"} authenticated`} </div>
           <AppRoutes/>
         </Router>

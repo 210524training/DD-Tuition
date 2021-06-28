@@ -3,20 +3,25 @@
 import { DocumentClient } from '../../node_modules/aws-sdk/clients/dynamodb';
 import dynamo from '../dynamo/dynamo';
 import log from '../log';
-import REvent from '../models/event';
-import CarRepo from '../repo/carRepo';
+import REvent, {status} from '../models/event';
+import EventRepo from '../repo/carRepo';
 
-export default class UserService {
+class EventService {
   constructor(
-        private doc = CarRepo,
+        public doc = EventRepo,
   ) {}
 
-  getByUserName(username: string): Promise<REvent[]> {
-    return this.doc.getByUserName(username);
+  public async getByUserName(username: string): Promise<REvent[]> {
+    const list = await this.doc.getByUserName(username);
+    return list;
   }
 
   async newReimbursement(event:REvent): Promise<boolean> {
     return this.doc.newReimbursement(event);
+  }
+
+  public async getByStatus(rStatus: status): Promise<REvent[]> {
+    return this.doc.getByStatus(rStatus);
   }
 
   async updateStatus(event: REvent): Promise<boolean> {
@@ -24,7 +29,7 @@ export default class UserService {
   }
 
   async queryByRid(rid: string): Promise<REvent | undefined> {
-    return this.queryByRid(rid);
+    return this.doc.queryByRid(rid);
   }
 
   async removeEvent(rid: string): Promise<boolean> {
@@ -35,3 +40,4 @@ export default class UserService {
     return this.doc.getAllEvents();
   }
 }
+export default new EventService();

@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
 import {NavLink,useHistory} from 'react-router-dom';
 import UserContext from '../../context';
-export type Props ={
-
+export type Props = {
+  user: string,
 }
-const Navbar: React.FC<Props> = (props) => {
-     const {user}  = useContext(UserContext);
+const Navbar: React.FC<Props> = (Props) => {
+  const {user}  = useContext(UserContext);
      
  return (
 <div className="container">
