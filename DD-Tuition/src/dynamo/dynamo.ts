@@ -21,7 +21,11 @@ const dynamo = new AWS.DynamoDB.DocumentClient({
 //   const result = await dynamo.get(params).promise();
 //   return result.Item as User | undefined;
 // }
-
+export const S3 = new AWS.S3({
+  region: 'us-east-2',
+  endpoint: 'https://s3.us-east-2.amazonaws.com',
+  apiVersion: 'latest',
+});
 export default dynamo;
 // function params(params: any) {
 //   throw new Error('Function not implemented.');

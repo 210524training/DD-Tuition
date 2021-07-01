@@ -14,7 +14,7 @@ type Props = {
     // const user = useAppSelector<UserState>(selectUser);
     const [username, setusername] = useState<string>();
     const [password, setPassword] = useState<string>();
-    const {setUser, setAuthenticated, setRole} = useContext(UserContext);
+    const {setBalance,setUser, setAuthenticated, setRole} = useContext(UserContext);
    const history= useHistory();
     const handleUsernameChange = (e: ChangeEvent<HTMLInputElement>) => {
       setusername(e.target.value);
@@ -30,7 +30,9 @@ type Props = {
       sessionStorage.getItem('user');
       console.log(response);
       setAuthenticated(true);
-      setRole(response.data.role); 
+      setRole(response.data.role);
+      setBalance(response.data.currentBalance);
+      console.log(response); 
       if(username !== undefined) {
          setUser(response.data.username);
       }
@@ -42,12 +44,13 @@ type Props = {
     return (
        
         <div id="root" className="banner">
-           <div>
+           <div className="container">
            <form className= "form-control" onSubmit={handleFormSubmit}>
-             <label>Username</label><input type="text" onChange={handleUsernameChange}/>
-              <label>Password</label><input type="password" onChange={handlePasswordChange}/>
+             <ul>
+             <li><label>Username</label><input type="text" onChange={handleUsernameChange}/></li>
+             <li><label>Password</label><input type="password" onChange={handlePasswordChange}/></li>
               <input type="submit"/>
-              
+              </ul>
               
            </form>
 

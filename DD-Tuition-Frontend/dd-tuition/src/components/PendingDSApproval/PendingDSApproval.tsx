@@ -4,15 +4,19 @@ import reimClient from '../../grubdash.client';
 import REvent from '../../models/event';
 
 
-const PendingDHReimburstments: React.FC<unknown> = (props) => {
+const PendingDSApproval: React.FC<unknown> = (props) => {
   const {user, role} = useContext(UserContext);
   const [tabledata, setTableData] = useState<REvent[]>();
   const [details,setDetails] = useState<boolean>();
   const [text, setText] = useState<String>();
   const handleApproval = async (event:REvent) => {
-    event.status = 'Pending Benefits Coordinator'; 
+    event.status = 'Pending Department Head'; 
     const data = await reimClient.put(`/api/v1/reimburstments/updateRequest`, {event});
-    getRein();
+     
+  }
+  
+  const handleCdetails = async (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value);
   }
   const handleReject = async(event:REvent) => {
     event.status = 'Rejected';
@@ -21,26 +25,16 @@ const PendingDHReimburstments: React.FC<unknown> = (props) => {
   const handleDetails = async() => {
     setDetails(true);
   }
-  const handleCdetails = async (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setText(e.target.value);
-  }
   const handleRequestInfo = async(event: REvent) => {
     event.sendTo = event.status;
     event.status = 'Need More Information';
     event.details = text as string;
     
     const data = await reimClient.put(`/api/v1/reimburstments/updateRequest`, {event});
-  } 
-  // useEffect(() => {
-  //   (async function populateTable(): Promise<void> {
-  //     if(user) {
-  //       const data =  await getUserRequests(currentUser)
-  //       setTableData(data)
-  //     }
-  //   })();
-  // },[user])
+    getRein();
+  }
     const getRein = async () => {
-        const data = await reimClient.post<REvent[]>(`/api/v1/reimburstments/pendingrequests`,{user,role} );
+        const data = await reimClient.post<REvent[]>(`/api/v1/reimburstments/pendingrequests`,{user,role});
         setTableData(data.data);
     };
  const tableRows = tabledata?.map((item: REvent, index) => (
@@ -48,14 +42,22 @@ const PendingDHReimburstments: React.FC<unknown> = (props) => {
           <td>{item.eventType}</td>
           <td>{item.description}</td>
           <td>{item.location}</td>
-          <td>{item.gradingformat}</td>
-
           <td>{item.cost}</td>
-          <td>{item.status}</td>
 
-          <td><button className="btn btn-success" onClick={() => handleApproval(item)}>Approve</button></td>
-          <td><button className="btn btn-danger" onClick={() => handleReject(item)}>Reject</button></td>
-          {details ?  (
+          <td>{item.projectedReimbursement}</td>
+
+          <td>{item.gradingformat}</td>
+          <td>{item.username}</td>
+
+          
+          <td>{item.status}</td>
+          {/* <td>{item.eventStartDate}</td>
+          <td>{item.eventStartTime}</td> */}
+          <td>{item.gradingformat}</td>
+          
+            <td><button className="btn btn-success" onClick={() => handleApproval(item)}>Approve</button></td>
+            <td><button className="btn btn-danger" onClick={() => handleReject(item)}>Reject</button></td>
+            {details ?  (
               <>
               
                 <td><textarea id="details" onChange={handleCdetails}></textarea></td>
@@ -73,16 +75,16 @@ const PendingDHReimburstments: React.FC<unknown> = (props) => {
 
   return (
     <div className="">
-    <h1>Reimburstment Requests to be Approved</h1>
-    <table onClick={getRein} className="table table-responsive table-bordered">
+    <table onClick={getRein} className="table table-bordered">
       <thead>
         <tr>
-        <th>Event Type</th>
+          <th>Event</th>
           <th>Description</th>
           <th>Location</th>
           <th>Cost</th>
-          <th>Grading Format</th>
-          <th>Status</th>
+          <th>Projected Amount</th>
+          <th>Graded By</th>
+          <th>Username</th>
         </tr>
       </thead>
       <tbody>
@@ -94,4 +96,6 @@ const PendingDHReimburstments: React.FC<unknown> = (props) => {
 
   );
 };
-export default PendingDHReimburstments;
+export default PendingDSApproval;
+
+

@@ -15,7 +15,7 @@ class EventRepo {
     const params: DocumentClient.ScanInput = {
       TableName: 'reinburstments',
       FilterExpression: '#username = :username',
-      ProjectionExpression: '#date, #time, #description, #cost, eventType, gradingformat, workrelated, timeOff, #status, username, rid',
+      ProjectionExpression: '#date, #time, #description, #cost, eventType, gradingformat, #location, workrelated, timeOff, #status, username, rid,projectedReimbursement',
       ExpressionAttributeValues: {
         ':username': username,
 
@@ -27,6 +27,7 @@ class EventRepo {
         '#cost': 'cost',
         '#username': 'username',
         '#status': 'status',
+        '#location': 'location',
       },
     };
     log.debug(params);
@@ -51,6 +52,8 @@ class EventRepo {
         gradingformat: event.gradingformat,
         workrelated: event.workrelated,
         timeOff: event.timeOff,
+        username: event.username,
+        projectedReimbursement: event.projectedReimbursement,
       },
       ReturnConsumedCapacity: 'TOTAL',
     };
@@ -64,16 +67,37 @@ class EventRepo {
     }
   }
 
-  async update(event: REvent): Promise<boolean> {
+  async updateDetails(event:REvent): Promise<boolean> {
     const params: DocumentClient.PutItemInput = {
       TableName: 'reinburstments',
       Item: { ...event },
 
     };
+    const result = await this.docClient.put(params).promise();
+    if(result) {
+      return true;
+    }
+    return false;
+  }
+
+  async update(event: REvent, data:string = ''): Promise<boolean> {
+    console.log(event);
+    const params: DocumentClient.UpdateItemInput = {
+      TableName: 'reinburstments',
+      Key: { rid: event.rid },
+      UpdateExpression: 'SET #status = :s, #file = :data',
+      ExpressionAttributeValues: {
+        ':s': event.status,
+        ':data': data,
+      },
+      ExpressionAttributeNames: {
+        '#status': 'status',
+        '#file': 'file',
+      },
+    };
 
     try {
-      await this.docClient.put(params).promise();
-
+      const result = await this.docClient.update(params).promise();
       return true;
     } catch(error) {
       console.log('Failed to update Restaurant: ', error);
@@ -104,7 +128,7 @@ class EventRepo {
     const params: DocumentClient.GetItemInput = {
       TableName: 'reinburstments',
       Key: { rid },
-      ProjectionExpression: '#date, #time, #description, #cost, eventType, gradingformat, workrelated, timeOff, #status, #username, rid',
+      ProjectionExpression: '#date, #time, #description, #cost, eventType, gradingformat, workrelated, timeOff, #status, #username, #rid',
       ExpressionAttributeNames: {
         '#date': 'date',
         '#time': 'time',
@@ -112,6 +136,7 @@ class EventRepo {
         '#cost': 'cost',
         '#username': 'username',
         '#status': 'status',
+        '#rid': 'rid',
       },
     };
     const result = await this.docClient.get(params).promise();
@@ -149,7 +174,7 @@ class EventRepo {
     const params: DocumentClient.ScanInput = {
       TableName: 'reinburstments',
       FilterExpression: '#status = :status',
-      ProjectionExpression: '#date, #time, #description, #cost, eventType, gradingformat, workrelated, timeOff, #status, #username, rid',
+      ProjectionExpression: '#date, #time, #description, #cost, eventType, gradingformat, workrelated, timeOff, #status, #username, #rid, projectedReimburstment',
       ExpressionAttributeValues: {
         ':status': rStatus,
 
@@ -161,6 +186,7 @@ class EventRepo {
         '#cost': 'cost',
         '#username': 'username',
         '#status': 'status',
+        '#rid': 'rid',
       },
     };
     const results = await this.docClient.scan(params).promise();

@@ -16,9 +16,10 @@ function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [user, setUser] = useState<string>('');
   const [role, setRole] = useState('');
+  const [balance, setBalance] = useState<number>(0);
   return (
     <>
-      <UserContext.Provider value={{ authenticated, setAuthenticated, user, setUser, role, setRole }}>
+      <UserContext.Provider value={{ authenticated, setAuthenticated, user, setUser,balance,setBalance, role, setRole }}>
         <Router>
           <Navbar user={user}/>
           <div> user is {`${authenticated ? "" : "not"} authenticated`} </div>

@@ -3,7 +3,9 @@ import UserContext from '../context';
 import Employee from '../models/employee';
 import ReimRequest from '../Reim';
 import ListRein from './ListRein/ListRein';
+import PendingBenCo from './PendingBenCo/PendingBenCo';
 import PendingDHReimburstments from './PendingDHReimburstments/PendDHApproval';
+import PendingDSApproval from './PendingDSApproval/PendingDSApproval';
 
 
 const EmployPage: React.FC<unknown> = (props) => {
@@ -23,7 +25,7 @@ const EmployPage: React.FC<unknown> = (props) => {
         </div>
         <hr />
         <div >
-            <div className="col-md">
+            <div className="col-sm">
                 <ReimRequest />
             </div>
             <div className="col-md">
@@ -43,18 +45,30 @@ const EmployPage: React.FC<unknown> = (props) => {
             </div>
             </div>
             
-    }    
+    }
+
         <hr />
-        
+    {role==='Direct Supervisor' &&
         <div className="row">
             <div className="col-sm">
-                <p>I am the head</p>
+                <PendingDSApproval/>
             </div>
             <div className="col-sm">
             </div>
         </div>
-
-            
+    
+}
+{role==='BenCo' &&
+        <div className="row">
+            <div className="col-sm">
+                <PendingBenCo/>
+            </div>
+            <div className="col-sm">
+                
+            </div>
+        </div>
+    
+}
     </div>
   );
 };

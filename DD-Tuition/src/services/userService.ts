@@ -3,6 +3,10 @@ import UserRepo from '../repo/userRepo';
 import Employee from '../models/employee';
 
 class EmployeeService {
+  async addPendingAmount(user:Employee): Promise<boolean> {
+    return this.Employees.addPendingAmount(user);
+  }
+
   public currentEmployee?: Employee;
 
   constructor(
@@ -13,7 +17,11 @@ class EmployeeService {
     return this.currentEmployee;
   }
 
-  public async findByEmployeename(Employeename: Employee): Promise<Employee | undefined> {
+  async addAwardedAmount(user:Employee): Promise<boolean> {
+    return this.Employees.addAwardedAmount(user);
+  }
+
+  public async findByEmployeename(Employeename: string): Promise<Employee | undefined> {
     return this.Employees.queryUser(Employeename);
   }
 
@@ -22,8 +30,8 @@ class EmployeeService {
   }
 
   public async login(username: string, password: string): Promise<Employee | boolean> {
-     const user = new Employee(username, password);
-    const found = await this.findByEmployeename(user);
+    // const user = new Employee(username, password);
+    const found = await this.findByEmployeename(username);
     // console.log(found);
     if(!found || found.password !== password) {
       return false;

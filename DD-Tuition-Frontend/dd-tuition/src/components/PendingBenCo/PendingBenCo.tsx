@@ -4,25 +4,25 @@ import reimClient from '../../grubdash.client';
 import REvent from '../../models/event';
 
 
-const PendingDHReimburstments: React.FC<unknown> = (props) => {
-  const {user, role} = useContext(UserContext);
+const PendingBenCo: React.FC<unknown> = (props) => {
+  const { user, role } = useContext(UserContext);
   const [tabledata, setTableData] = useState<REvent[]>();
   const [details,setDetails] = useState<boolean>();
   const [text, setText] = useState<String>();
+  const [newAmount, setAmount] = useState<number>();  
   const handleApproval = async (event:REvent) => {
-    event.status = 'Pending Benefits Coordinator'; 
+    event.status = 'Approved';
+    event.projectedReimbursement = newAmount as  number;
+    if(event.projectedReimbursement!==newAmount){
+      event.newAmount = newAmount as number;
+    }
+
     const data = await reimClient.put(`/api/v1/reimburstments/updateRequest`, {event});
-    getRein();
+     
   }
   const handleReject = async(event:REvent) => {
     event.status = 'Rejected';
     const data = await reimClient.put(`/api/v1/reimburstments/updateRequest`, {event});
-  }
-  const handleDetails = async() => {
-    setDetails(true);
-  }
-  const handleCdetails = async (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setText(e.target.value);
   }
   const handleRequestInfo = async(event: REvent) => {
     event.sendTo = event.status;
@@ -30,27 +30,34 @@ const PendingDHReimburstments: React.FC<unknown> = (props) => {
     event.details = text as string;
     
     const data = await reimClient.put(`/api/v1/reimburstments/updateRequest`, {event});
-  } 
-  // useEffect(() => {
-  //   (async function populateTable(): Promise<void> {
-  //     if(user) {
-  //       const data =  await getUserRequests(currentUser)
-  //       setTableData(data)
-  //     }
-  //   })();
-  // },[user])
+  }
+  const handleChangeAmount = async(e:ChangeEvent<HTMLInputElement>) => {
+    setAmount(Number(e.target.value));
+  }
+  const handleAmount = async (event:REvent) => {
+    if(event.projectedReimbursement!==newAmount)
+      await reimClient.put(`api/v1/employee/addCurrentBalance`,{user, event});
+    getRein();
+  }
     const getRein = async () => {
-        const data = await reimClient.post<REvent[]>(`/api/v1/reimburstments/pendingrequests`,{user,role} );
+        const data = await reimClient.post<REvent[]>(`/api/v1/reimburstments/pendingrequests`,{user,role});
         setTableData(data.data);
     };
+    const handleCdetails = async (e: ChangeEvent<HTMLTextAreaElement>) => {
+      setText(e.target.value);
+    }
+    const handleDetails = async() => {
+      setDetails(true);
+    }
  const tableRows = tabledata?.map((item: REvent, index) => (
         <tr key={index} >
           <td>{item.eventType}</td>
           <td>{item.description}</td>
           <td>{item.location}</td>
+          <td><input type="number"  onChange={handleChangeAmount}></input></td>
           <td>{item.gradingformat}</td>
-
-          <td>{item.cost}</td>
+          <td>{item.username}</td>
+          
           <td>{item.status}</td>
 
           <td><button className="btn btn-success" onClick={() => handleApproval(item)}>Approve</button></td>
@@ -66,6 +73,7 @@ const PendingDHReimburstments: React.FC<unknown> = (props) => {
 
             )
 }
+          
         </tr>
         
       ));
@@ -73,8 +81,7 @@ const PendingDHReimburstments: React.FC<unknown> = (props) => {
 
   return (
     <div className="">
-    <h1>Reimburstment Requests to be Approved</h1>
-    <table onClick={getRein} className="table table-responsive table-bordered">
+    <table onClick={getRein} className="table table-responsive">
       <thead>
         <tr>
         <th>Event Type</th>
@@ -82,16 +89,18 @@ const PendingDHReimburstments: React.FC<unknown> = (props) => {
           <th>Location</th>
           <th>Cost</th>
           <th>Grading Format</th>
+          <th>User</th>
           <th>Status</th>
+          
         </tr>
       </thead>
       <tbody>
         {tableRows}
-      </tbody>
+    </tbody>
     </table>
     </div>
 
 
   );
 };
-export default PendingDHReimburstments;
+export default PendingBenCo;

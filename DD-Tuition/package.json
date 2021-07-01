@@ -22,6 +22,7 @@
         "@types/express-session": "^1.17.3",
         "@types/fs-extra": "^9.0.11",
         "@types/jest": "^26.0.23",
+        "@types/multer": "^1.4.6",
         "@types/node": "^15.6.1",
         "@types/uuid": "^8.3.0",
         "@typescript-eslint/eslint-plugin": "^4.25.0",
@@ -46,6 +47,7 @@
         "express-session": "^1.17.2",
         "http-status-codes": "^2.1.4",
         "log4js": "^6.3.0",
+        "multer": "^1.4.2",
         "uuid": "^3.3.2"
     },
     "include": [

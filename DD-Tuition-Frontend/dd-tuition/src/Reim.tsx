@@ -1,17 +1,26 @@
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useContext, useState } from 'react';
 import reimClient from './grubdash.client';
-
+import REvent from './models/event';
+import logger from 'log4js';
+import UserContext from './context';
 const ReimRequest: React.FC<unknown> = (props) => {
 
-  const [eventType, setEventType] = useState<string>();
-  const [rawCost, setRawCost] = useState<string>();
-  const [startDate, setStartDate] = useState<string>();
+  
+  const [RType, setEventType] = useState<string>();
+  const [cost, setRawCost] = useState<string>();
+  const [date, setStartDate] = useState<string>();
   const [endDate, setEndDate] = useState<string>();
   const [location, setLocation] = useState<string>();
   const [description, setDescription] = useState<string>();
   const [gradingFormat, setGradingFormat] = useState<string>();
   const [justification, setJustification] = useState<string>();
   const [approverEmail, setApproverEmail] = useState<string>();
+  const {user} = useContext(UserContext);
+  const [file, setFile] = useState<File>();
+  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    setFile(e.target.files[0]);
+  };
 
   const handleEventType = (e: ChangeEvent<HTMLSelectElement>) => {
     setEventType(e.target.value);
@@ -42,7 +51,19 @@ const ReimRequest: React.FC<unknown> = (props) => {
 
   const handleReimSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const response = await reimClient.post('/api/v1/reinburstments/', {eventType, rawCost, startDate, location, description, gradingFormat, justification, approverEmail});
+    var reader = new FileReader();
+
+    //Creates reimburstment object and gets the respons then calulates projected amounted
+    const response = await reimClient.post<REvent>('/api/v1/reimburstments/', {RType, cost, date, location, description, gradingFormat, justification,user, approverEmail});
+    // if (file) {
+    //   let formData;
+    //   reader.readAsDataURL(file);
+    //   reader.onload = async () => {
+    //      formData = reader.result;
+    //      const response2 = await reimClient.patch('api/v1/reimburstments/file', {reimID, formData});
+    //      console.log('FILE IS SENT: ', response2)
+    //   };
+    // }
     console.log(response);
     const reimID = response.data;
 
@@ -50,10 +71,10 @@ const ReimRequest: React.FC<unknown> = (props) => {
 
   return (
     <>
-    <div className="myForms">
+    <div className="">
         <h3>Reimbursement Request</h3>
         <form onSubmit={ handleReimSubmit }>
-          <div className="form-group">
+          <div className="form-group container-sm">
             <div>
               <div>
                 <label>Event type:</label>
@@ -106,6 +127,9 @@ const ReimRequest: React.FC<unknown> = (props) => {
           </div>
             <br/>
             <input type="submit" className="btn btn-primary" value="Submit"/>
+            <label>Attach files:&nbsp;</label>
+            <input onChange={handleFile}type="file" />
+                            
       </form>
     </div>
     </>

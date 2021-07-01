@@ -7,13 +7,13 @@ export default class Employee {
 
     public balanceCap: number = 1000;
 
-    public email!: string;
+    public email: string='';
 
     public role: role = 'Employee';
 
     public currentBalance: number = 0;
 
-    AvailableReimburstment = this.TotalReimburstment * (1000) - this.PendingReimburstments - this.AwardedReimburstments;
+    private AvailableReimburstment = 1000 - this.PendingReimburstments - this.AwardedReimburstments;
 
     constructor(
     public username: string,
